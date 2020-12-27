@@ -6,6 +6,14 @@ public class Platform {
     public static final int EAST_WEST = 1;
     public static final int ALREADY_COLLIDED = 2;
 
+    // flags for collision checking
+    public static final int IGNORE_X_DIRECTION = 1000;
+    public static final int IGNORE_Y_DIRECTION = 1001;
+    public static final int IGNORE_X_POSITIVE_DIRECTION = 1002;
+    public static final int IGNORE_X_NEGATIVE_DIRECTION = 1003;
+    public static final int IGNORE_Y_POSITIVE_DIRECTION = 1004;
+    public static final int IGNORE_Y_NEGATIVE_DIRECTION = 1005;
+
     // min and max x and y points of the platform
     private int x1, y1, x2, y2;
 
@@ -38,6 +46,25 @@ public class Platform {
      */
     public boolean intersects(int xMin, int yMin, int xMax, int yMax) {
         return (xMax >= x1 && xMin <= x2) && (yMax >= y1 && yMin <= y2);
+    }
+
+    /**
+     * checks to see if a rectangular bounding bo collides with this platform
+     * @param xMin - the min x value
+     * @param yMin - the min y value
+     * @param xMax - the max x value
+     * @param yMax - the max y value
+     * @param flags - optional flags
+     * @return - true if the bounding box will collide
+     */
+    public boolean intersects(int xMin, int yMin, int xMax, int yMax, int flags) {
+        if (flags == IGNORE_X_DIRECTION) {
+            return yMax > y1 && yMin < y2;
+        }
+        if (flags == IGNORE_Y_DIRECTION) {
+            return xMax > x1 && xMin < x2;
+        }
+        return false;
     }
 
     /**
