@@ -38,6 +38,9 @@ public class Main {
     // player size
     private static int playerWidth = 20;
     private static int playerHeight = 20;
+    // collision variables
+    private static boolean northSouthCollision = false;
+    private static boolean eastWestCollision = false;
 
     /**
      * platform variables
@@ -204,9 +207,21 @@ public class Main {
         // check collision
         if (!platform.intersects(newX, playerY, newX + playerWidth, playerY + playerHeight)) {
             playerX = newX;
+        } else {
+            if (dx > 0) {
+                playerX = platform.getX1() - playerWidth;
+            } else if (dx < 0) {
+                playerX = platform.getX2();
+            }
         }
         if (!platform.intersects(playerX, newY, playerX + playerWidth, newY + playerHeight)) {
             playerY = newY;
+        } else {
+            if (dy > 0) {
+                playerY = platform.getY1() - playerWidth;
+            } else if (dy < 0) {
+                playerY = platform.getY2();
+            }
         }
     }
 }

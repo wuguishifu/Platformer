@@ -13,6 +13,7 @@ public class Platform {
     public static final int IGNORE_X_NEGATIVE_DIRECTION = 1003;
     public static final int IGNORE_Y_POSITIVE_DIRECTION = 1004;
     public static final int IGNORE_Y_NEGATIVE_DIRECTION = 1005;
+    public static final int FLAG_IGNORE = 1006;
 
     // min and max x and y points of the platform
     private int x1, y1, x2, y2;
@@ -63,6 +64,9 @@ public class Platform {
         }
         if (flags == IGNORE_Y_DIRECTION) {
             return xMax > x1 && xMin < x2;
+        }
+        if (flags == FLAG_IGNORE) {
+            return intersects(xMin, yMin, xMax, yMax);
         }
         return false;
     }
