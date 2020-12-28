@@ -46,11 +46,11 @@ public class Platform {
      * @return - true if the bounding box will collide
      */
     public boolean intersects(int xMin, int yMin, int xMax, int yMax) {
-        return (xMax >= x1 && xMin <= x2) && (yMax >= y1 && yMin <= y2);
+        return (xMax > x1 && xMin < x2) && (yMax > y1 && yMin < y2);
     }
 
     /**
-     * checks to see if a rectangular bounding bo collides with this platform
+     * checks to see if a rectangular bounding box collides with this platform
      * @param xMin - the min x value
      * @param yMin - the min y value
      * @param xMax - the max x value
