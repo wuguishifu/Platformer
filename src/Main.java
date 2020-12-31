@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 public class Main {
 
@@ -39,13 +40,14 @@ public class Main {
     private static int playerWidth = 20;
     private static int playerHeight = 20;
     // collision variables
-    private static boolean northSouthCollision = false;
-    private static boolean eastWestCollision = false;
+    private static boolean isOnGround = false;
+    private static int acceleration = 1;
+    private static int dy;
 
     /**
      * platform variables
      */
-    private static Platform platform;
+    private static ArrayList<Platform> platforms = new ArrayList<>();
 
     /**
      * game variables
@@ -76,7 +78,9 @@ public class Main {
 
                 // attempt to draw the platform
                 g.setColor(c4);
-                g.fillRect(platform.getX1(), platform.getY1(), platform.getWidth(), platform.getHeight());
+                for (Platform platform : platforms) {
+                    g.fillRect(platform.getX1(), platform.getY1(), platform.getWidth(), platform.getHeight());
+                }
             }
         };
         panel.setSize(new Dimension(width, height));
@@ -147,7 +151,7 @@ public class Main {
         frame.setSize(width + extraW, height + extraH);
 
         // set up game objects
-        platform = new Platform(width/4, height/4, width/4, height/4);
+        platforms.add(new Platform(0, 5*height/6, width/4, height/6));
 
         // run the main game loop
         run();
@@ -185,12 +189,18 @@ public class Main {
      */
     public static void movePlayer() {
         // motion in the y direction
-        //motion speed
-        int dy = 0;
-        if (up && !down) {
-            dy = -maxVelocity;
-        } else if (down && !up) {
-            dy = maxVelocity;
+        // check if player is on ground
+        for (Platform platform : platforms) {
+            isOnGround = false;
+            if (platform.intersects(playerX, playerY + 1, playerX + playerWidth, playerY + playerHeight + 1)) {
+                isOnGround = true;
+                break;
+            }
+        }
+        if (!isOnGround) {
+            dy = dy + acceleration;
+        } else {
+            dy = 0;
         }
 
         // motion in the x direction
@@ -204,24 +214,20 @@ public class Main {
         // attempt to move the player, check collision in the x and y direction
         int newX = playerX + dx;
         int newY = playerY + dy;
-        // check collision
-        if (!platform.intersects(newX, playerY, newX + playerWidth, playerY + playerHeight)) {
-            playerX = newX;
-        } else {
-            if (dx > 0) {
-                playerX = platform.getX1() - playerWidth;
-            } else if (dx < 0) {
-                playerX = platform.getX2();
+
+        for (Platform platform : platforms) {
+            // check collision
+            if (platform.intersects(newX, playerY, newX + playerWidth, playerY + playerHeight)) {
+                newX = playerX;
+            }
+            if (platform.intersects(playerX, newY, playerX + playerWidth, newY + playerHeight)) {
+                newY = playerY;
+                isOnGround = true;
+                playerY = platform.getY1() - playerHeight;
             }
         }
-        if (!platform.intersects(playerX, newY, playerX + playerWidth, newY + playerHeight)) {
-            playerY = newY;
-        } else {
-            if (dy > 0) {
-                playerY = platform.getY1() - playerWidth;
-            } else if (dy < 0) {
-                playerY = platform.getY2();
-            }
-        }
+
+        playerX = newX;
+        playerY = newY;
     }
 }
