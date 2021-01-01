@@ -32,7 +32,7 @@ public class Main {
     private static boolean left = false;
     private static boolean right = false;
     // player motion variables
-    private static final int maxVelocity = 5;
+    private static final int maxVelocity = 10;
     // player current position
     private static int playerX = 0;
     private static int playerY = 0;
@@ -41,10 +41,12 @@ public class Main {
     private static int playerHeight = 20;
     // collision variables
     private static boolean isOnGround = false;
-    private static int acceleration = 1;
+    private static final int acceleration = 1;
     private static int dy;
     private static boolean jump = false;
     // coyote time
+    private static final int coyoteFrames = 5;
+    private static int currentCoyoteFrame = 0;
 
     /**
      * platform variables
@@ -56,7 +58,6 @@ public class Main {
      */
     private static boolean windowShouldClose = false;
     private static boolean gameOver = false;
-    private static long startTime = System.currentTimeMillis();
     private static final long FPS = 20;
 
     /**
@@ -142,6 +143,9 @@ public class Main {
 
         // set up the frame
         frame.setSize(new Dimension(width, height));
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
+
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         // add the components to the frame
@@ -177,15 +181,13 @@ public class Main {
                 movePlayer();
                 panel.repaint();
 
-                startTime = System.currentTimeMillis();
                 try {
-                    Thread.sleep(FPS);
+                    Thread.sleep(FPS); // delay 20 ms
                 } catch (InterruptedException ignored) {
                 }
             }
-            startTime = System.currentTimeMillis();
             try {
-                Thread.sleep(FPS);
+                Thread.sleep(FPS); // delay 20 ms
             } catch (InterruptedException ignored) {
             }
         }
@@ -197,12 +199,21 @@ public class Main {
     public static void movePlayer() {
         // motion in the y direction
         // check if player is on ground
+        boolean temp = false;
         for (Platform platform : platforms) {
-            isOnGround = false;
             if (platform.intersects(playerX, playerY + 1, playerX + playerWidth, playerY + playerHeight + 1)) {
-                isOnGround = true;
+                temp = true;
                 break;
             }
+        }
+
+        if (!temp && currentCoyoteFrame > coyoteFrames) {
+            isOnGround = false;
+            currentCoyoteFrame = 0;
+        } else if (!temp) {
+            currentCoyoteFrame ++;
+        } else {
+            isOnGround = true;
         }
 
         if (!isOnGround) {
