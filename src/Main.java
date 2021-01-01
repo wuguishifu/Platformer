@@ -6,52 +6,27 @@ import java.util.ArrayList;
 
 public class Main {
 
-    /**
-     * game window variables
-     */
     // the frame and panel
     private static JFrame frame;
     private static JPanel panel;
+
     // window size
     private static final int width = 800;
     private static final int height = 600;
 
-    /**
-     * color pallet
-     */
-    private static final Color c1 = new Color(190, 219, 187);
-    private static final Color c2 = new Color(141, 181, 150);
-    private static final Color c3 = new Color(146, 129, 122);
-    private static final Color c4 = new Color(112, 112, 112);
+    // the color pallet
+    public static final Color c1 = new Color(190, 219, 187);
+    public static final Color c2 = new Color(141, 181, 150);
+    public static final Color c3 = new Color(146, 129, 122);
+    public static final Color c4 = new Color(112, 112, 112);
 
-    /**
-     * player variables
-     */
-    private static boolean up = false;
-    private static boolean down = false;
-    private static boolean left = false;
-    private static boolean right = false;
-    // player motion variables
-    private static final int maxVelocity = 10;
-    // player current position
-    private static int playerX = 0;
-    private static int playerY = 0;
-    // player size
-    private static int playerWidth = 20;
-    private static int playerHeight = 20;
-    // collision variables
-    private static boolean isOnGround = false;
-    private static final int acceleration = 1;
-    private static int dy;
-    private static boolean jump = false;
-    // coyote time
-    private static final int coyoteFrames = 5;
-    private static int currentCoyoteFrame = 0;
+    // the player
+    private static Player player;
 
-    /**
-     * platform variables
-     */
+    // the platforms
     private static ArrayList<Platform> platforms = new ArrayList<>();
+
+    // the player
 
     /**
      * game variables
@@ -75,9 +50,8 @@ public class Main {
             public void paint(Graphics g) {
                 super.paint(g);
 
-                // attempt to draw the player
-                g.setColor(c2);
-                g.fillRect(playerX, playerY, playerWidth, playerHeight);
+                // paint the player
+                player.paint(g);
 
                 // attempt to draw the platform
                 g.setColor(c4);
@@ -100,21 +74,19 @@ public class Main {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W:
-                        up = true;
+                        player.setPlayerMotion(Player.FLAG_MOVE_UP, true);
                         break;
                     case KeyEvent.VK_A:
-                        left = true;
+                        player.setPlayerMotion(Player.FLAG_MOVE_LEFT, true);
                         break;
                     case KeyEvent.VK_S:
-                        down = true;
+                        player.setPlayerMotion(Player.FLAG_MOVE_DOWN, true);
                         break;
                     case KeyEvent.VK_D:
-                        right = true;
+                        player.setPlayerMotion(Player.FLAG_MOVE_RIGHT, true);
                         break;
                     case KeyEvent.VK_SPACE:
-                        if (isOnGround) {
-                            jump = true;
-                        }
+                        player.setPlayerMotion(Player.FLAG_JUMP, true);
                         break;
                     case KeyEvent.VK_ESCAPE:
                         windowShouldClose = true;
@@ -126,16 +98,16 @@ public class Main {
             public void keyReleased(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W:
-                        up = false;
+                        player.setPlayerMotion(Player.FLAG_MOVE_UP, false);
                         break;
                     case KeyEvent.VK_A:
-                        left = false;
+                        player.setPlayerMotion(Player.FLAG_MOVE_LEFT, false);
                         break;
                     case KeyEvent.VK_S:
-                        down = false;
+                        player.setPlayerMotion(Player.FLAG_MOVE_DOWN, false);
                         break;
                     case KeyEvent.VK_D:
-                        right = false;
+                        player.setPlayerMotion(Player.FLAG_MOVE_RIGHT, false);
                         break;
                 }
             }
@@ -163,6 +135,8 @@ public class Main {
 
         // set up game objects
         platforms.add(new Platform(0, 5*height/6, width/4, height/6));
+        platforms.add(new Platform(0, 17*height/18, width, height/18+10));
+        player = new Player(0, 0);
 
         // run the main game loop
         run();
@@ -178,7 +152,8 @@ public class Main {
         while (!windowShouldClose) {
             while (!gameOver && !windowShouldClose) {
 
-                movePlayer();
+                // update the player
+                player.update(platforms);
                 panel.repaint();
 
                 try {
@@ -191,66 +166,5 @@ public class Main {
             } catch (InterruptedException ignored) {
             }
         }
-    }
-
-    /**
-     * moves the player and checks collision
-     */
-    public static void movePlayer() {
-        // motion in the y direction
-        // check if player is on ground
-        boolean temp = false;
-        for (Platform platform : platforms) {
-            if (platform.intersects(playerX, playerY + 1, playerX + playerWidth, playerY + playerHeight + 1)) {
-                temp = true;
-                break;
-            }
-        }
-
-        if (!temp && currentCoyoteFrame > coyoteFrames) {
-            isOnGround = false;
-            currentCoyoteFrame = 0;
-        } else if (!temp) {
-            currentCoyoteFrame ++;
-        } else {
-            isOnGround = true;
-        }
-
-        if (!isOnGround) {
-            dy = dy + acceleration;
-        } else if (jump) {
-            dy = -10;
-            isOnGround = false;
-            jump = false;
-        } else {
-            dy = 0;
-        }
-
-        // motion in the x direction
-        int dx = 0;
-        if (left && !right) {
-            dx = -maxVelocity;
-        } else if (right && !left) {
-            dx = maxVelocity;
-        }
-
-        // attempt to move the player, check collision in the x and y direction
-        int newX = playerX + dx;
-        int newY = playerY + dy;
-
-        for (Platform platform : platforms) {
-            // check collision
-            if (platform.intersects(newX, playerY, newX + playerWidth, playerY + playerHeight)) {
-                newX = playerX;
-            }
-            if (platform.intersects(playerX, newY, playerX + playerWidth, newY + playerHeight)) {
-                dy = 0;
-                isOnGround = true;
-                newY = platform.getY1() - playerHeight;
-            }
-        }
-
-        playerX = newX;
-        playerY = newY;
     }
 }
