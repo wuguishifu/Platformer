@@ -1,161 +1,121 @@
+import java.awt.*;
+
 public class Platform {
 
-    // final variables
-    public static final int NO_COLLISION = -1;
-    public static final int NORTH_SOUTH = 0;
-    public static final int EAST_WEST = 1;
-    public static final int ALREADY_COLLIDED = 2;
-
-    // flags for collision checking
-    public static final int IGNORE_X_DIRECTION = 1000;
-    public static final int IGNORE_Y_DIRECTION = 1001;
-    public static final int IGNORE_X_POSITIVE_DIRECTION = 1002;
-    public static final int IGNORE_X_NEGATIVE_DIRECTION = 1003;
-    public static final int IGNORE_Y_POSITIVE_DIRECTION = 1004;
-    public static final int IGNORE_Y_NEGATIVE_DIRECTION = 1005;
-    public static final int FLAG_IGNORE = 1006;
-
-    // min and max x and y points of the platform
-    private int x1, y1, x2, y2;
+    // the x and y position of the top left corner of the platform
+    private int x, y;
 
     // the width and height of the platform
     private int width, height;
 
+    // the hitbox of this platform
+    private Hitbox hitbox;
+
     /**
-     * main constructor
-     * @param x1 - int x min
-     * @param y1 - int y min
-     * @param width - int width
-     * @param height - int height
+     * main constructor for specified location and size
+     * @param x - the x position of the top left corner
+     * @param y - the y position of the top left corner
+     * @param width - the width of the platform
+     * @param height - the height of the platform
      */
-    public Platform(int x1, int y1, int width, int height) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x1 + width;
-        this.y2 = y1 + height;
+    public Platform(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
+
+        // construct a hitbox for this platform
+        this.hitbox = new Hitbox(x, y, width, height);
     }
 
     /**
-     * checks to see if a rectangular bounding box collides with this platform
-     * @param xMin - the min x value
-     * @param yMin - the min y value
-     * @param xMax - the max x value
-     * @param yMax - the max y value
-     * @return - true if the bounding box will collide
+     * creates a platform from the min and max x and y values
+     * @param x1 - the min x value
+     * @param y1 - the min y value
+     * @param x2 - the max x value
+     * @param y2 - the max y value
+     * @return - a new hitbox from these defined values
      */
-    public boolean intersects(int xMin, int yMin, int xMax, int yMax) {
-        return (xMax > x1 && xMin < x2) && (yMax > y1 && yMin < y2);
+    public static Platform platformFromMaxima(int x1, int y1, int x2, int y2) {
+        return new Platform(x1, y1, x2 - x1, y2 - y1);
     }
 
     /**
-     * checks to see if a rectangular bounding box collides with this platform
-     * @param xMin - the min x value
-     * @param yMin - the min y value
-     * @param xMax - the max x value
-     * @param yMax - the max y value
-     * @param flags - optional flags
-     * @return - true if the bounding box will collide
+     * updates the platform
      */
-    public boolean intersects(int xMin, int yMin, int xMax, int yMax, int flags) {
-        if (flags == IGNORE_X_DIRECTION) {
-            return yMax > y1 && yMin < y2;
-        }
-        if (flags == IGNORE_Y_DIRECTION) {
-            return xMax > x1 && xMin < x2;
-        }
-        if (flags == FLAG_IGNORE) {
-            return intersects(xMin, yMin, xMax, yMax);
-        }
-        return false;
+    public void update() {
+        // null method for now
     }
 
     /**
-     * checks to see if a rectangular bounding box collides with this platform
-     * @param boundingBox - the rectangular coordinates of the bounding box to be checked in the form [xMin, yMin, xMax, yMax]
-     * @return - true if the bounding box collides
+     * moves the platform to a specified location
+     * @param x1 - the new x value
+     * @param y1 - the new y value
      */
-    public boolean intersects(int[] boundingBox) {
-        if (boundingBox.length < 4) {
-            System.err.println("Error: Not enough bounding box points to check collision.");
-            return false;
-        }
-        return intersects(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]);
+    public void moveTo(int x1, int y1) {
+        this.hitbox.moveTo(x1 - x, y1 - y);
+        this.x = x1;
+        this.y = y1;
     }
 
     /**
-     * checks to see if a rectangular bounding box is going to collide and if so, which direction of motion
-     * @param currentPoints - the current rectangular bounding box
-     * @param nextPoints - the next rectangular bounding box
-     * @return - a static variable representing which direction collision occurs in
+     * scales the platform by moving the bottom right corner
+     * @param mx - the scale factor for the width
+     * @param my - the scale factor for the height
      */
-    public int directionalCollisionCheck(int[] currentPoints, int[] nextPoints) {
-        if (intersects(currentPoints)) {
-            return ALREADY_COLLIDED;
-        }
-        if (intersects(currentPoints[0], nextPoints[1], currentPoints[2], nextPoints[3])) {
-            return NORTH_SOUTH;
-        }
-        if (intersects(nextPoints[0], currentPoints[1], nextPoints[2], currentPoints[3])) {
-            return EAST_WEST;
-        }
-        return NO_COLLISION;
+    public void scale(int mx, int my) {
+        this.hitbox.scale(mx, my);
+        this.width *= mx;
+        this.height *= my;
     }
 
     /**
      * getter method
-     * @return - the width of this rectangle
+     * @return - the hitbox
+     */
+    public Hitbox getHitbox() {
+        return this.hitbox;
+    }
+
+    /**
+     * paints the platform
+     * @param g - the graphics object created by javax.swing
+     */
+    public void paint(Graphics g) {
+        g.setColor(Main.c4);
+        g.fillRect(x, y, width, height);
+    }
+
+    /**
+     * getter method
+     * @return - the x position of the top right corner of this platform
+     */
+    public int getX() {
+        return this.x;
+    }
+
+    /**
+     * getter method
+     * @return - the y position of the top left corner of this platform
+     */
+    public int getY() {
+        return this.y;
+    }
+
+    /**
+     * getter method
+     * @return - the width of this platform
      */
     public int getWidth() {
-        return width;
+        return this.width;
     }
 
     /**
      * getter method
-     * @return - the height of this rectangle
+     * @return - the height of this platform
      */
     public int getHeight() {
-        return height;
+        return this.height;
     }
 
-    /**
-     * getter method
-     * @return - the bounding rectangle in the form [xMin, yMin, xMax, yMax]
-     */
-    public int[] getBoundingRectangle() {
-        return new int[]{x1, y1, x2, y2};
-    }
-
-    /**
-     * getter method
-     * @return - the min x value
-     */
-    public int getX1() {
-        return x1;
-    }
-
-    /**
-     * getter method
-     * @return - the min y value
-     */
-    public int getY1() {
-        return y1;
-    }
-
-    /**
-     * getter method
-     * @return - the max x value
-     */
-    public int getX2() {
-        return x2;
-    }
-
-    /**
-     * getter method
-     * @return - the max y value
-     */
-    public int getY2() {
-        return y2;
-    }
 }

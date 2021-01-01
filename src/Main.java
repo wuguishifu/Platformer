@@ -11,8 +11,8 @@ public class Main {
     private static JPanel panel;
 
     // window size
-    private static final int width = 800;
-    private static final int height = 600;
+    public static final int width = 800;
+    public static final int height = 600;
 
     // the color pallet
     public static final Color c1 = new Color(190, 219, 187);
@@ -22,11 +22,10 @@ public class Main {
 
     // the player
     private static Player player;
+    private static boolean up = false, down = false, left = false, right = false, jump = false;
 
     // the platforms
     private static ArrayList<Platform> platforms = new ArrayList<>();
-
-    // the player
 
     /**
      * game variables
@@ -53,11 +52,11 @@ public class Main {
                 // paint the player
                 player.paint(g);
 
-                // attempt to draw the platform
-                g.setColor(c4);
-                for (Platform platform : platforms) {
-                    g.fillRect(platform.getX1(), platform.getY1(), platform.getWidth(), platform.getHeight());
+                // draw the platform
+                for (Platform p : platforms) {
+                    p.paint(g);
                 }
+
             }
         };
         panel.setSize(new Dimension(width, height));
@@ -74,19 +73,19 @@ public class Main {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W:
-                        player.setPlayerMotion(Player.FLAG_MOVE_UP, true);
+                        up = true;
                         break;
                     case KeyEvent.VK_A:
-                        player.setPlayerMotion(Player.FLAG_MOVE_LEFT, true);
+                        left = true;
                         break;
                     case KeyEvent.VK_S:
-                        player.setPlayerMotion(Player.FLAG_MOVE_DOWN, true);
+                        down = true;
                         break;
                     case KeyEvent.VK_D:
-                        player.setPlayerMotion(Player.FLAG_MOVE_RIGHT, true);
+                        right = true;
                         break;
                     case KeyEvent.VK_SPACE:
-                        player.setPlayerMotion(Player.FLAG_JUMP, true);
+                        jump = true;
                         break;
                     case KeyEvent.VK_ESCAPE:
                         windowShouldClose = true;
@@ -98,16 +97,19 @@ public class Main {
             public void keyReleased(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W:
-                        player.setPlayerMotion(Player.FLAG_MOVE_UP, false);
+                        up = false;
                         break;
                     case KeyEvent.VK_A:
-                        player.setPlayerMotion(Player.FLAG_MOVE_LEFT, false);
+                        left = false;
                         break;
                     case KeyEvent.VK_S:
-                        player.setPlayerMotion(Player.FLAG_MOVE_DOWN, false);
+                        down = false;
                         break;
                     case KeyEvent.VK_D:
-                        player.setPlayerMotion(Player.FLAG_MOVE_RIGHT, false);
+                        right = false;
+                        break;
+                    case KeyEvent.VK_SPACE:
+                        jump = false;
                         break;
                 }
             }
@@ -152,8 +154,10 @@ public class Main {
         while (!windowShouldClose) {
             while (!gameOver && !windowShouldClose) {
 
-                // update the player
-                player.update(platforms);
+                // update the game objects
+                update();
+
+                // repaint the window
                 panel.repaint();
 
                 try {
@@ -165,6 +169,32 @@ public class Main {
                 Thread.sleep(FPS); // delay 20 ms
             } catch (InterruptedException ignored) {
             }
+        }
+    }
+
+    /**
+     * updates the game objects
+     */
+    private static void update() {
+        // create a list of hitboxes of every other game object in the level
+        ArrayList<Hitbox> hitboxes = new ArrayList<>();
+        for (Platform p : platforms) {
+            hitboxes.add(p.getHitbox());
+        }
+
+        // update the player
+        // create a flag for moving the player
+        int flag = up ? Player.FLAG_MOVE_UP : 0;
+        flag = down ? flag | Player.FLAG_MOVE_DOWN : flag;
+        flag = left ? flag | Player.FLAG_MOVE_LEFT : flag;
+        flag = right ? flag | Player.FLAG_MOVE_RIGHT : flag;
+        flag = jump ? flag | Player.FLAG_JUMP : flag;
+        player.enablePlayerMotion(flag);
+        // move the player
+        player.update(hitboxes);
+
+        for (Platform p : platforms) {
+            p.update();
         }
     }
 }

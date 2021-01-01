@@ -32,6 +32,9 @@ public class Player {
     private int x, y; // the position
     private static final int width = 20, height = 20; // the dimensions (currently represented by a rectangle)
 
+    // the player hitbox
+    private Hitbox hitbox;
+
     /**
      * main constructor
      * @param x - the x position
@@ -40,37 +43,28 @@ public class Player {
     public Player(int x, int y) {
         this.x = x;
         this.y = y;
+        this.hitbox = new Hitbox(x, y, width, height);
     }
 
     /**
      * uses flags to set the player's motion
      * @param motionFlag - the flag
      */
-    public void setPlayerMotion(int motionFlag, boolean value) {
-        switch (motionFlag) {
-            case FLAG_MOVE_LEFT:
-                left = value;
-                break;
-            case FLAG_MOVE_RIGHT:
-                right = value;
-                break;
-            case FLAG_JUMP:
-                if (onGround) {
-                    jump = value;
-                }
-                break;
-        }
+    public void enablePlayerMotion(int motionFlag) {
+        left = (motionFlag & FLAG_MOVE_LEFT) == FLAG_MOVE_LEFT;
+        right = (motionFlag & FLAG_MOVE_RIGHT) == FLAG_MOVE_RIGHT;
+        jump = (motionFlag & FLAG_JUMP) == FLAG_JUMP && onGround;
     }
 
     /**
      * updates the player's position
-     * @param platforms - a list of platforms
+     * @param hitboxes - a list of platforms
      */
-    public void update(ArrayList<Platform> platforms) {
+    public void update(ArrayList<Hitbox> hitboxes) {
         // check to see if the player is on the ground
         boolean temp = false;
-        for (Platform p : platforms) {
-            if (p.intersects(x, y + 1, x + width, y + height + 1)) {
+        for (Hitbox h : hitboxes) {
+            if (h.intersects(x, y + 1, x + width, y + height + 1)) {
                 temp = true;
                 break;
             }
@@ -106,29 +100,61 @@ public class Player {
         int newY = y + dy;
 
         // attempt to move the player and check collision in the x direction against every platform
-        for (Platform p : platforms) {
+        for (Hitbox h : hitboxes) {
             // if the x value collides with any platform don't move the player in the x direction
-            if (p.intersects(newX, y, newX + width, y + height)) {
+            if (h.intersects(newX, y, newX + width, y + height)) {
                 newX = x;
             }
         }
 
         // attempt to move the player and check collision in the y direction if and only if the player isn't on the ground
         if (!onGround) {
-            for (Platform p : platforms) {
+            for (Hitbox h : hitboxes) {
                 // if the y value collides, don't move the player in the y value
                 // furthermore, if the player collides then set the y value to the platform height so it looks smooth
-                if (p.intersects(x, newY, x + width, newY + height)) {
+                if (h.intersects(x, newY, x + width, newY + height)) {
                     dy = 0;
                     onGround = true;
-                    newY = p.getY1() - height;
+                    newY = h.getYMin() - height;
                 }
             }
+        }
+
+        // make sure the player isn't leaving the screen
+        if (newX < 0 || newX + width> Main.width) {
+            newX = x;
+        }
+        if (newY < 0 || newY + height> Main.height) {
+            newY = y;
         }
 
         // move the player to the next position
         x = newX;
         y = newY;
+    }
+
+    /**
+     * getter method
+     * @return - the x position
+     */
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * getter method
+     * @return - the y position
+     */
+    public int getY() {
+        return y;
+    }
+
+    /**
+     * getter method
+     * @return - the hitbox
+     */
+    public Hitbox getHitbox() {
+        return hitbox;
     }
 
     /**
@@ -139,5 +165,4 @@ public class Player {
         g.setColor(Main.c2);
         g.fillRect(x, y, width, height);
     }
-
 }
