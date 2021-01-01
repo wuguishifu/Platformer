@@ -43,6 +43,8 @@ public class Main {
     private static boolean isOnGround = false;
     private static int acceleration = 1;
     private static int dy;
+    private static boolean jump = false;
+    // coyote time
 
     /**
      * platform variables
@@ -107,6 +109,11 @@ public class Main {
                         break;
                     case KeyEvent.VK_D:
                         right = true;
+                        break;
+                    case KeyEvent.VK_SPACE:
+                        if (isOnGround) {
+                            jump = true;
+                        }
                         break;
                     case KeyEvent.VK_ESCAPE:
                         windowShouldClose = true;
@@ -197,8 +204,13 @@ public class Main {
                 break;
             }
         }
+
         if (!isOnGround) {
             dy = dy + acceleration;
+        } else if (jump) {
+            dy = -10;
+            isOnGround = false;
+            jump = false;
         } else {
             dy = 0;
         }
@@ -221,9 +233,9 @@ public class Main {
                 newX = playerX;
             }
             if (platform.intersects(playerX, newY, playerX + playerWidth, newY + playerHeight)) {
-                newY = playerY;
+                dy = 0;
                 isOnGround = true;
-                playerY = platform.getY1() - playerHeight;
+                newY = platform.getY1() - playerHeight;
             }
         }
 
