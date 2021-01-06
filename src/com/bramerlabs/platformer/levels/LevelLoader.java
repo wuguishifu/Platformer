@@ -7,12 +7,12 @@ import java.util.Scanner;
 
 public class LevelLoader {
 
-    public static String[] levelFiles = new String[]{"res/levels/Level1"};
+    public static String levelHeader = "res/levels/Level";
 
-    public static Level loadLevel(int level) {
+    public static Level loadLevel(int index) {
         try {
             // create the scanner object scanning the specific level specified
-            Scanner input = new Scanner(new File(levelFiles[level]));
+            Scanner input = new Scanner(new File(levelHeader + index));
 
             // the level width and height
             int levelWidth = input.nextInt();

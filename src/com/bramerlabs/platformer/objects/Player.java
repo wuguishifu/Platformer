@@ -80,7 +80,7 @@ public class Player {
             currentCoyoteFrame++;
         }
 
-        // if the player is on the ground, make their dy = 0. Otherwise, accelerate them
+        // if the player is on the ground, make their dy = Level0. Otherwise, accelerate them
         if (!onGround) {
             dy = dy + GRAVITY;
         } else if (jump) { // if the player jumps, add -10 to dy
@@ -97,7 +97,7 @@ public class Player {
             dx = -MAX_VELOCITY;
         } else if (right && !left) { // if the player is going only right make their dx positive
             dx = MAX_VELOCITY;
-        } // otherwise their dx is defaulted to 0
+        } // otherwise their dx is defaulted to Level0
 
         // assign temp variables describing the players position in the next frame
         int newX = x + dx;
