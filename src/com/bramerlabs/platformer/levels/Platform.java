@@ -1,3 +1,8 @@
+package com.bramerlabs.platformer.levels;
+
+import com.bramerlabs.platformer.main.Main;
+import com.bramerlabs.platformer.objects.Hitbox;
+
 import java.awt.*;
 
 public class Platform {

@@ -1,4 +1,4 @@
-import java.awt.*;
+package com.bramerlabs.platformer.objects;
 
 public class Hitbox {
 

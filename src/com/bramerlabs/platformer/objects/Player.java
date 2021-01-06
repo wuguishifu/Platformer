@@ -1,3 +1,7 @@
+package com.bramerlabs.platformer.objects;
+
+import com.bramerlabs.platformer.main.Main;
+
 import java.awt.*;
 import java.util.ArrayList;
 

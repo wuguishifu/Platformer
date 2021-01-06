@@ -1,8 +1,14 @@
+package com.bramerlabs.platformer.main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+
+import com.bramerlabs.platformer.levels.Platform;
+import com.bramerlabs.platformer.objects.Hitbox;
+import com.bramerlabs.platformer.objects.Player;
 
 public class Main {
 
@@ -137,7 +143,7 @@ public class Main {
 
         // set up game objects
         platforms.add(new Platform(0, 5*height/6, width/4, height/6));
-        platforms.add(new Platform(0, 17*height/18, width, height/18+10));
+        platforms.add(Platform.platformFromMaxima(0, height-10, width, height));
         player = new Player(0, 0);
 
         // run the main game loop
