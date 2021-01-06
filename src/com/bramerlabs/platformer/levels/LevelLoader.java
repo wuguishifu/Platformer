@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 public class LevelLoader {
 
+    // the header of the levels to be loaded
     public static String levelHeader = "res/levels/Level";
 
     public static Level loadLevel(int index) {
