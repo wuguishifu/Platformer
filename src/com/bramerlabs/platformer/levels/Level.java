@@ -12,6 +12,26 @@ public class Level {
     // a list of platforms in the level
     private ArrayList<Platform> platforms;
 
+    // the player starting location
+    private int playerX, playerY;
+
+    /**
+     * default constructor for all specified values
+     * creates a level
+     * @param width - the width of the level
+     * @param height - the height of the level
+     * @param platforms - the list of platforms in the level
+     * @param playerX - the initial player x position
+     * @param playerY - the initial player y position
+     */
+    public Level(int width, int height, ArrayList<Platform> platforms, int playerX, int playerY) {
+        this.width = width;
+        this.height = height;
+        this.platforms = platforms;
+        this.playerX = playerX;
+        this.playerY = playerY;
+    }
+
     /**
      * constructor - creates a level
      * @param width - the width of the level
@@ -22,6 +42,8 @@ public class Level {
         this.width = width;
         this.height = height;
         this.platforms = platforms;
+        this.playerX = 0;
+        this.playerY = 0;
     }
 
     /**
@@ -31,6 +53,22 @@ public class Level {
         this.width = Main.width;
         this.height = Main.height;
         this.platforms = new ArrayList<>();
+    }
+
+    /**
+     * getter method
+     * @return - the initial player x position
+     */
+    public int getPlayerX() {
+        return this.playerX;
+    }
+
+    /**
+     * getter method
+     * @return - the initial player y position
+     */
+    public int getPlayerY() {
+        return this.playerY;
     }
 
     /**
@@ -54,7 +92,7 @@ public class Level {
      * @param index - the index of the platform - typically going from left to right
      * @return - the platform specified by the index
      */
-    public Platform getLevel(int index) {
+    public Platform getPlatform(int index) {
         return this.platforms.get(index);
     }
 

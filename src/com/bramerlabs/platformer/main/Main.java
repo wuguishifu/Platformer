@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import com.bramerlabs.platformer.levels.Level;
+import com.bramerlabs.platformer.levels.LevelLoader;
 import com.bramerlabs.platformer.levels.Platform;
 import com.bramerlabs.platformer.objects.Hitbox;
 import com.bramerlabs.platformer.objects.Player;
@@ -132,6 +134,9 @@ public class Main {
         frame.add(panel);
         frame.addKeyListener(keyListener);
 
+        // load the level
+        loadLevel(0);
+
         // display the frame
         frame.setVisible(true);
 
@@ -140,11 +145,6 @@ public class Main {
         int extraW = width - actualSize.width;
         int extraH = height - actualSize.height;
         frame.setSize(width + extraW, height + extraH);
-
-        // set up game objects
-        platforms.add(new Platform(0, 5*height/6, width/4, height/6));
-        platforms.add(Platform.platformFromMaxima(0, height-10, width, height));
-        player = new Player(0, 0);
 
         // run the main game loop
         run();
@@ -202,5 +202,24 @@ public class Main {
         for (Platform p : platforms) {
             p.update();
         }
+    }
+
+    /**
+     * loads a specific level
+     */
+    public static void loadLevel(int index) {
+        // load the specific level
+        Level level = LevelLoader.loadLevel(index);
+
+        // make sure the level exists
+        if (level == null) {
+            throw new NullPointerException();
+        }
+
+        // construct the player
+        player = new Player(level.getPlayerX(), level.getPlayerY());
+
+        // construct the platforms
+        platforms = level.getPlatforms();
     }
 }
