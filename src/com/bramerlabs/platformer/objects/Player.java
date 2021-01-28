@@ -22,8 +22,8 @@ public class Player {
 
     // physics variables
     private static final int MAX_VELOCITY = 10;
-    private static final int JUMP_VELOCITY = 15;
-    private static final int GRAVITY = 1;
+    private static final int JUMP_VELOCITY = 25;
+    private static final int GRAVITY = 2;
     private static final int COYOTE_FRAMES = 5;
 
     // player motion
